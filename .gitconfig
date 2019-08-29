@@ -1,0 +1,32 @@
+[user]
+    name = daibao9922
+    email = daibao9922@sina.com
+
+[core]
+    editor = vim
+    quotepath = false
+    autocrlf = false
+    safecrlf = false
+
+[merge]
+    tool = vimdiff
+
+[mergetool]
+    prompt = false
+
+[diff]
+    tool = vimdiff
+
+[difftool]
+    prompt = false
+
+[alias]
+    st = status
+    ci = commit
+    co = checkout
+    br = branch
+    di = diff
+
+[push]
+    default = simple
+
