@@ -11,6 +11,14 @@ let s:rg_path = '/data/data/com.termux/files/usr/bin/rg'
 let s:bash_path = '/data/data/com.termux/files/usr/bin/bash'
 let s:search_result_show = 0
 
+function! SearchResultStatusLine()
+    if job_status(s:search_result_job) == 'run'
+        return '[Search ' . s:search_result_word . '...]'
+    else
+        return ''
+    endif
+endfunction
+
 function! s:SearchResultCurLineCheck(line)
     if a:line > len(s:search_result_list)
         return [0, []]
@@ -98,7 +106,7 @@ function! s:RgAsyncFinishHandler()
     set autoread
     execute 'view ' . s:search_result_file
     execute "normal /\\%$//;?^>>?2\<cr>"
-    set noautoread
+    setlocal noautoread
     
     let s:search_result_list = getline(1, '$')
     let cur_pos = getcurpos()
@@ -285,6 +293,44 @@ function! s:InitPlug()
     call plug#end()
 endfunction
 
+function! StatusLineGetPos()
+    let pos = getcurpos()
+    let all_line_num = line('$')
+    let percent = (pos[1] * 100) / all_line_num
+    return '[' . string(all_line_num) . ',' . string(percent) . '%][' . string(pos[1]) . ',' . string(pos[2]) . ']'
+endfunction
+
+function! s:SetStatusLine()
+	" 设置状态行显示常用信息
+	" %F 完整文件路径名
+	" %m 当前缓冲被修改标记
+	" %m 当前缓冲只读标记
+	" %h 帮助缓冲标记
+	" %w 预览缓冲标记
+	" %Y 文件类型
+	" %b ASCII值
+	" %B 十六进制值
+	" %l 行数
+	" %v 列数
+	" %p 当前行数占总行数的的百分比
+	" %L 总行数
+	" %{...} 评估表达式的值，并用值代替
+	" %{"[fenc=".(&fenc==""?&enc:&fenc).((exists("+bomb") && &bomb)?"+":"")."]"} 显示文件编码
+	" %{&ff} 显示文件类型
+	set statusline=%F%m%r%h%w
+    set statusline+=%=
+    set statusline+=%{StatusLineGetPos()}
+    set statusline+=[ft=%Y]
+    set statusline+=%{\"[fenc=\".(&fenc==\"\"?&enc:&fenc).((exists(\"+bomb\")\ &&\ &bomb)?\"+\":\"\").\"]\"}
+    set statusline+=[ff=%{&ff}]
+    set statusline+=%{SearchResultStatusLine()}
+
+	" 设置 laststatus = 0 ，不显式状态行
+	" 设置 laststatus = 1 ，仅当窗口多于一个时，显示状态行
+	" 设置 laststatus = 2 ，总是显式状态行
+	set laststatus=2
+endfunction
+
 function! s:InitMap()
     let g:mapleader = ','
     let g:maplocalleader = '-'
@@ -305,6 +351,7 @@ function! s:Main()
     call s:InitPlug()
     call s:InitMap()
     call s:InitAutocmd()
+    call s:SetStatusLine()
 endfunction
 
 call s:Main()
