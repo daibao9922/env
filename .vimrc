@@ -268,6 +268,14 @@ function! s:PlugGutentags()
     let g:gutentags_ctags_tagfile = '.tags'
     let g:gutentags_modules = ['ctags']
     let g:gutentags_cache_dir = expand(s:_tags_cache_dir)
+    let g:gutentags_ctags_extra_args = ["--c-kinds=+p",
+                \ "--fields=+iaS",
+                \ "--extra=+q",
+                \ "--excmd=number",
+                \ "--exclude=*.vim"]
+    let gutentags_define_advanced_commands = 0
+    let g:gutentags_auto_add_gtags_cscope = 0
+    let g:gutentags_generate_on_empty_buffer = 0
 endfunction
 
 function! s:PlugYouCompleteMe()
@@ -287,7 +295,7 @@ endfunction
 function! s:InitPlug()
     call plug#begin('~/.vim/plugged')
     call s:PlugFzf()
-    "call s:PlugGutentags()
+    call s:PlugGutentags()
     "call s:PlugYouCompleteMe()
     call s:PlugInterestingWords()
     call plug#end()
@@ -331,6 +339,105 @@ function! s:SetStatusLine()
 	set laststatus=2
 endfunction
 
+function! s:GetAllFiles()
+    let cmd = 'find
+                \ \( -path "./.git" -prune \)
+                \ -o \( -path "./.svn" -prune \)
+                \ -o \( ! \(
+                \     \( -type d \)
+                \     -o \( -name "*.a" \)
+                \     -o \( -name "*.so" \)
+                \     -o \( -name "*.o" \)
+                \     -o \( -name "*.pyc" \)
+                \     -o \( -name "*.swp" \)
+                \ \) \)'
+    return cmd
+endfunction
+
+function! s:ParseTags(source_file)
+    let arg = ''
+    let args = {
+                \'c': '--language-force=c --c-kinds=+px',
+                \'cpp': '--language-force=c++ --c++-kinds=+px',
+                \'python': '--language-force=python',
+                \'sh': '--language-force=sh',
+                \'make': '--language-force=make',
+                \'vim': '--language-force=vim',
+                \}
+    if has_key(args, &filetype)
+        let arg = args[&filetype]
+    endif
+    let ctags_result = system('ctags -x -f - ' . arg . ' ' . a:source_file . ' | awk "NF >= 3 {print \$1, \$3}"')
+    return split(ctags_result, '\v\n+')
+endfunction
+
+function! s:GetBufferTags()
+    let source_file = ''
+    let result = []
+    if &modified
+        let source_file = tempname()
+        let all_lines = getline(1, '$')
+        call writefile(all_lines, source_file)
+        let result = s:ParseTags(source_file)
+        call delete(source_file)
+    else
+        let source_file = expand('%')
+        let result = s:ParseTags(source_file)
+    endif
+    return result
+endfunction
+
+function! s:SinkGetBufferTags(lineStr)
+    let record = split(a:lineStr, '\v +')
+    execute record[1]
+    execute 'normal! zz'
+endfunction
+
+function! s:MapLeader_lt()
+    let opt = {
+                \ 'source': s:GetBufferTags(),
+                \ 'sink': function('s:SinkGetBufferTags'),
+                \ 'down': '50%'
+                \}
+    call fzf#run(opt)
+endfunction
+
+function! s:GetAllTags()
+    let tags = split(&l:tags, ',')
+    if len(tags) == 0
+        return ''
+    endif
+    if ! filereadable(tags[0])
+        return ''
+    endif
+    let awk_string = 'awk '' '
+                \ . ' { '
+                \ . ' count = sub("' . getcwd() . '/", "", $2);'
+                \ . ' sub(";.*", "", $3);'
+                \ . ' if (count > 0)'
+                \ . ' {'
+                \ . '     print $1, $2, $3; '
+                \ . ' }'
+                \ . ' }'' '
+    return 'cat ' . tags[0] . ' | ' . awk_string
+endfunction
+
+function! s:SinkGetAllTags(lineStr)
+    let record = split(a:lineStr, '\v +')
+    execute 'edit ' . record[1]
+    execute record[2]
+    execute 'normal! zz'
+endfunction
+
+function! s:MapLeader_la()
+    let opt = {
+                \ 'source': s:GetAllTags(),
+                \ 'sink': function('s:SinkGetAllTags'),
+                \ 'down': '50%'
+                \}
+    call fzf#run(opt)
+endfunction
+
 function! s:InitMap()
     let g:mapleader = ','
     let g:maplocalleader = '-'
@@ -338,10 +445,35 @@ function! s:InitMap()
     cnoremap jk <esc>
 
     call s:InitSearchMap()
+
+    nnoremap <leader>ev :e ~/.vimrc<cr>
+
+    nnoremap <leader>lf :call fzf#run({'source':<sid>GetAllFiles(), 'down':'50%', 'sink':'e'})<cr>
+    nnoremap <leader>lb :Buffers<cr>
+    nnoremap <leader>ll :BLines<cr>
+    nnoremap <leader>lh :Helptags<cr>
+    nnoremap <leader>lt :call <sid>MapLeader_lt()<cr>
+    nnoremap <leader>la :call <sid>MapLeader_la()<cr>
+endfunction
+
+function! s:Autocmd_SetHelpOption()
+    call setwinvar(bufwined(""), '&number', 1)
 endfunction
 
 function! s:InitAutocmd()
     call s:InitSearchAutocmd()
+
+    augroup reg_autocmd
+        autocmd!
+
+        autocmd FileType help call <sid>Autocmd_SetHelpOption()
+
+        " jump to function name
+        autocmd FileType c,cpp nnoremap <localleader>f ?\(^\s*\(\w\+\s\+\)\{-0,1}\w\+[\* ]\+\zs\w\+\s*\(else\s\+if\s*\)\@<!(\_[^;]\{-})\(\_[^;]\)\{-}{\)\\|\(^\s*#define\s\+\zs\w\+(\)?<cr>
+        autocmd FileType python nnoremap <localleader>f ?^\s*def\s\+\zs\w\+?<cr>
+        autocmd FileType sh nnoremap <localleader>f ?^\s*\zs\w\+()<cr>
+        autocmd FileType vim nnoremap <localleader>f ?^func\%[tion!]\s\+\(\w:\)\=\zs\w\+\s*(?<cr>
+    augroup END
 endfunction
 
 function! s:Main()
