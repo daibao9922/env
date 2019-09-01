@@ -103,10 +103,10 @@ function! s:RgAsyncFinishHandler()
 
     let s:search_result_curr_line = 0
 
-    set autoread
+    " setlocal autoread
+    setlocal autoread
     execute 'view ' . s:search_result_file
     execute "normal /\\%$//;?^>>?2\<cr>"
-    setlocal noautoread
     
     let s:search_result_list = getline(1, '$')
     let cur_pos = getcurpos()
@@ -309,22 +309,22 @@ function! StatusLineGetPos()
 endfunction
 
 function! s:SetStatusLine()
-	" è®¾ç½®çŠ¶æ€è¡Œæ˜¾ç¤ºå¸¸ç”¨ä¿¡æ¯
-	" %F å®Œæ•´æ–‡ä»¶è·¯å¾„å
-	" %m å½“å‰ç¼“å†²è¢«ä¿®æ”¹æ ‡è®°
-	" %m å½“å‰ç¼“å†²åªè¯»æ ‡è®°
-	" %h å¸®åŠ©ç¼“å†²æ ‡è®°
-	" %w é¢„è§ˆç¼“å†²æ ‡è®°
-	" %Y æ–‡ä»¶ç±»å‹
-	" %b ASCIIå€¼
-	" %B åå…­è¿›åˆ¶å€¼
-	" %l è¡Œæ•°
-	" %v åˆ—æ•°
-	" %p å½“å‰è¡Œæ•°å æ€»è¡Œæ•°çš„çš„ç™¾åˆ†æ¯”
-	" %L æ€»è¡Œæ•°
-	" %{...} è¯„ä¼°è¡¨è¾¾å¼çš„å€¼ï¼Œå¹¶ç”¨å€¼ä»£æ›¿
-	" %{"[fenc=".(&fenc==""?&enc:&fenc).((exists("+bomb") && &bomb)?"+":"")."]"} æ˜¾ç¤ºæ–‡ä»¶ç¼–ç 
-	" %{&ff} æ˜¾ç¤ºæ–‡ä»¶ç±»å‹
+	" ÉèÖÃ×´Ì¬ĞĞÏÔÊ¾³£ÓÃĞÅÏ¢
+	" %F ÍêÕûÎÄ¼şÂ·¾¶Ãû
+	" %m µ±Ç°»º³å±»ĞŞ¸Ä±ê¼Ç
+	" %m µ±Ç°»º³åÖ»¶Á±ê¼Ç
+	" %h °ïÖú»º³å±ê¼Ç
+	" %w Ô¤ÀÀ»º³å±ê¼Ç
+	" %Y ÎÄ¼şÀàĞÍ
+	" %b ASCIIÖµ
+	" %B Ê®Áù½øÖÆÖµ
+	" %l ĞĞÊı
+	" %v ÁĞÊı
+	" %p µ±Ç°ĞĞÊıÕ¼×ÜĞĞÊıµÄµÄ°Ù·Ö±È
+	" %L ×ÜĞĞÊı
+	" %{...} ÆÀ¹À±í´ïÊ½µÄÖµ£¬²¢ÓÃÖµ´úÌæ
+	" %{"[fenc=".(&fenc==""?&enc:&fenc).((exists("+bomb") && &bomb)?"+":"")."]"} ÏÔÊ¾ÎÄ¼ş±àÂë
+	" %{&ff} ÏÔÊ¾ÎÄ¼şÀàĞÍ
 	set statusline=%F%m%r%h%w
     set statusline+=%=
     set statusline+=%{StatusLineGetPos()}
@@ -333,9 +333,9 @@ function! s:SetStatusLine()
     set statusline+=[ff=%{&ff}]
     set statusline+=%{SearchResultStatusLine()}
 
-	" è®¾ç½® laststatus = 0 ï¼Œä¸æ˜¾å¼çŠ¶æ€è¡Œ
-	" è®¾ç½® laststatus = 1 ï¼Œä»…å½“çª—å£å¤šäºä¸€ä¸ªæ—¶ï¼Œæ˜¾ç¤ºçŠ¶æ€è¡Œ
-	" è®¾ç½® laststatus = 2 ï¼Œæ€»æ˜¯æ˜¾å¼çŠ¶æ€è¡Œ
+	" ÉèÖÃ laststatus = 0 £¬²»ÏÔÊ½×´Ì¬ĞĞ
+	" ÉèÖÃ laststatus = 1 £¬½öµ±´°¿Ú¶àÓÚÒ»¸öÊ±£¬ÏÔÊ¾×´Ì¬ĞĞ
+	" ÉèÖÃ laststatus = 2 £¬×ÜÊÇÏÔÊ½×´Ì¬ĞĞ
 	set laststatus=2
 endfunction
 
@@ -457,7 +457,7 @@ function! s:InitMap()
 endfunction
 
 function! s:Autocmd_SetHelpOption()
-    call setwinvar(bufwined(""), '&number', 1)
+    call setwinvar(bufwinid(""), '&number', 1)
 endfunction
 
 function! s:InitAutocmd()
@@ -469,7 +469,7 @@ function! s:InitAutocmd()
         autocmd FileType help call <sid>Autocmd_SetHelpOption()
 
         " jump to function name
-        autocmd FileType c,cpp nnoremap <localleader>f ?\(^\s*\(\w\+\s\+\)\{-0,1}\w\+[\* ]\+\zs\w\+\s*\(else\s\+if\s*\)\@<!(\_[^;]\{-})\(\_[^;]\)\{-}{\)\\|\(^\s*#define\s\+\zs\w\+(\)?<cr>
+        autocmd FileType c,cpp nnoremap <localleader>f ?\(^\s*\(\w\+\s\+\)\{-0,1}\w\+[\* ]\+\zs\w\+\s*\(else\s\+if\s*\)\@<!(\_[^;]\{-})\(\_[^;]\)\{-}{\)\\|\(^\s*#define\s\+\zs\w\+(\)?<cr><cr>
         autocmd FileType python nnoremap <localleader>f ?^\s*def\s\+\zs\w\+?<cr>
         autocmd FileType sh nnoremap <localleader>f ?^\s*\zs\w\+()<cr>
         autocmd FileType vim nnoremap <localleader>f ?^func\%[tion!]\s\+\(\w:\)\=\zs\w\+\s*(?<cr>
