@@ -7,8 +7,8 @@ let s:search_result_cur_line = 0
 let s:search_result_job = job_start(":")
 let s:search_result_word = ''
 let s:search_path = getcwd()
-let s:rg_path = '/data/data/com.termux/files/usr/bin/rg'
-let s:bash_path = '/data/data/com.termux/files/usr/bin/bash'
+let s:rg_path = '/usr/bin/rg'
+let s:bash_path = '/usr/bin/bash'
 let s:search_result_show = 0
 
 function! SearchResultStatusLine()
