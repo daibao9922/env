@@ -259,7 +259,7 @@ function! s:InitProgramming()
 endfunction
 
 function! s:PlugFzf()
-    Plug 'junegunn/fzf.vim'
+    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 endfunction
 
 function! s:PlugGutentags()
@@ -280,6 +280,18 @@ endfunction
 
 function! s:PlugYouCompleteMe()
     Plug 'ycm-core/YouCompleteMe'
+    let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
+    let g:ycm_key_invoke_completion = '<leader>z'
+    let g:ycm_semantic_triggers =  {
+			\ 'c,cpp,python,go': ['re!\w{2}'],
+			\ }
+    let g:ycm_error_symbol = '>>'
+    let g:ycm_warning_symbol = '>*'
+    let g:ycm_always_populate_location_list = 1
+
+    " close preview window
+    set completeopt=menu,menuone
+    let g:ycm_add_preview_to_completeopt = 0
 endfunction
 
 function! s:PlugInterestingWords()
@@ -296,7 +308,7 @@ function! s:InitPlug()
     call plug#begin('~/.vim/plugged')
     call s:PlugFzf()
     call s:PlugGutentags()
-    "call s:PlugYouCompleteMe()
+    call s:PlugYouCompleteMe()
     call s:PlugInterestingWords()
     call plug#end()
 endfunction
@@ -305,7 +317,7 @@ function! StatusLineGetPos()
     let pos = getcurpos()
     let all_line_num = line('$')
     let percent = (pos[1] * 100) / all_line_num
-    return '[' . string(all_line_num) . ',' . string(percent) . '%][' . string(pos[1]) . ',' . string(pos[2]) . ']'
+    return '[' . string(all_line_num) . ',' . string(percent) . '%][' . string(pos[2]) . ']'
 endfunction
 
 function! s:SetStatusLine()
@@ -328,9 +340,9 @@ function! s:SetStatusLine()
 	set statusline=%F%m%r%h%w
     set statusline+=%=
     set statusline+=%{StatusLineGetPos()}
-    set statusline+=[ft=%Y]
-    set statusline+=%{\"[fenc=\".(&fenc==\"\"?&enc:&fenc).((exists(\"+bomb\")\ &&\ &bomb)?\"+\":\"\").\"]\"}
-    set statusline+=[ff=%{&ff}]
+    set statusline+=[%Y]
+    set statusline+=%{\"[\".(&fenc==\"\"?&enc:&fenc).((exists(\"+bomb\")\ &&\ &bomb)?\"+\":\"\").\"]\"}
+    set statusline+=[%{&ff}]
     set statusline+=%{SearchResultStatusLine()}
 
 	" 设置 laststatus = 0 ，不显式状态行
@@ -476,6 +488,11 @@ function! s:InitAutocmd()
     augroup END
 endfunction
 
+function! s:InitCommand()
+    command! -bang -nargs=* Rg call s:RgWithLineNumber(<q-args, '', <bang>0)
+    command! -bang -nargs=* -complete=dir MySearchPath call s:ChangeSearchPath(<q-args>)
+endfunction
+
 function! s:Main()
     call s:InitBase()
     call s:InitEncoding()
@@ -484,6 +501,7 @@ function! s:Main()
     call s:InitMap()
     call s:InitAutocmd()
     call s:SetStatusLine()
+    call s:InitCommand()
 endfunction
 
 call s:Main()
