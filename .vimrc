@@ -458,6 +458,8 @@ function! s:InitMap()
 
     call s:InitSearchMap()
 
+    nnoremap <leader>d :call <sid>MapLeader_d()<cr>
+
     nnoremap <leader>ev :e ~/.vimrc<cr>
 
     nnoremap <leader>lf :call fzf#run({'source':<sid>GetAllFiles(), 'down':'50%', 'sink':'e'})<cr>
@@ -492,6 +494,143 @@ function! s:InitCommand()
     command! -bang -nargs=* Rg call s:RgWithLineNumber(<q-args, '', <bang>0)
     command! -bang -nargs=* -complete=dir MySearchPath call s:ChangeSearchPath(<q-args>)
 endfunction
+
+"------------ leader d ------------
+function! s:cur_is_struct_member(line, col)
+    let cur_col = a:col
+    while cur_col != 0
+        let cur_char = a:line[cur_col]
+        if cur_char >=# 'a' && cuur_char <=# 'z'
+            let cur_col = cur_col - 1
+            continue
+        endif
+        if cur_char >=# 'A' && cuur_char <=# 'Z'
+            let cur_col = cur_col - 1
+            continue
+        endif
+        if cur_char >=# '0' && cuur_char <=# '9'
+            let cur_col = cur_col - 1
+            continue
+        endif
+        if cur_char ==# '_'
+            let cur_col = cur_col - 1
+            continue
+        endif
+        break
+    endwhile
+    if cur_col == 0
+        return 0
+    endif
+    if a:line[cur_col] ==# '.'
+        return 1
+    endif
+    if a:line[cur_col] ==# '>' && a:line[cur_col - 1] ==#'-'
+        return 1
+    endif
+    return 0
+endfunction
+
+function! s:GotoTagOfType(output_list, type, tag_name)
+    let type_count = 0
+    let first_line = 1
+    let pos = match(a:output_list[0], 'kind')
+    if pos < 0
+        return 0
+    endif
+
+    for str in a:output_list
+        if first_line
+            let first_line = 0
+            continue
+        endif
+        if str[pos] ==# a:type
+            let type_count = type_count + 1
+            let tag_index = matchstr(str, '\d\+')
+        endif
+    endfor
+    if type_count == 1
+        execute tag_index . 'tag ' . a:tag_name
+        return 1
+    endif
+    return 0
+endfunction
+
+function! s:GotoTag(tag_name)
+    execute 'redir => output'
+    execute 'silent ts ' . a:tag_name
+    execute 'redir END'
+
+    let output_list = split(output, "\n")
+    if len(output_list) == 0
+        return
+    endif
+    if s:GotoTagOfType(output_list, 'f', a:tag_name)
+        return
+    endif
+    if s:GotoTagOfType(output_list, 'm', a:tag_name)
+        return
+    endif
+    if s:GotoTagOfType(output_list, 'c', a:tag_name)
+        return
+    endif
+    execute "tjump " . a:tag_name
+endfunction
+
+function! s:GotoInclude(line)
+    let match_result = matchlist(a:line, '\v#include +"(.+/)*(.+\.[ch]"')
+    if len(match_result) == 0 || match_result[2] == ''
+        return 0
+    endif
+    call fzf#run({
+                \'source':'find . -name ' . match_result[2],
+                \'sink': 'e',
+                \'down': '50%'})
+    return 1
+endfunction
+
+function! s:GotoDefinitionC()
+    let cur_line = getline(".")
+    let col = getcurpos()[2]
+
+    if s:cur_is_struct_member(cur_line, col)
+        let old_line_num = line('.')
+        YcmCompleter GoToDeclaration
+        if old_line_num == line('.')
+            call s:GotoTag(expand("<cword>"))
+        endif
+    elseif s:GotoInclude(cur_line)
+        return
+    else
+        call s:GotoTag(expand("<cword>"))
+    endif
+endfunction
+
+function! s:GotoDefinitionPython()
+    let cur_line = getline(".")
+    let col = getcurpos()[2]
+
+    if s:cur_is_struct_member(cur_line, col)
+        let old_line_num = line('.')
+        YcmCompleter GoToDeclaration
+        if old_line_num == line('.')
+            call s:GotoTag(expand("<cword>"))
+        endif
+    else
+        call s:GotoTag(expand("<cword>"))
+    endif
+endfunction
+
+function! s:MapLeader_d()
+    if &filetype == 'c' || &filetype == 'cpp'
+        call s:GotoDefinitionC()
+    elseif &FileType == 'python'
+        call s:GotoDefinitionPython()
+    else
+        call s:GotoTag(expand("<cword>"))
+    endif
+endfunction
+
+"------------ leader d ------------
 
 function! s:Main()
     call s:InitBase()
