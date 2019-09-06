@@ -189,7 +189,7 @@ function! s:MapLeader_fs()
     endif
 endfunction
 
-function! s:MapLeader_fr()
+function! s:MapLeader_q()
     if filereadable(s:search_result_file)
         execute 'e ' . s:search_result_file
     endif
@@ -200,7 +200,7 @@ function! s:InitSearchMap()
     nnoremap <leader>R :call <sid>MapLeader_R()<cr>
     nnoremap <leader>fl :call <sid>MapLeader_fl()<cr>
     nnoremap <leader>fs :call <sid>MapLeader_fs()<cr>
-    nnoremap <leader>fr :call <sid>MapLeader_fr()<cr>
+    nnoremap <leader>q :call <sid>MapLeader_q()<cr>
     nnoremap <C-N> :call <sid>GotoResultFileNext()<cr>
     nnoremap <C-P> :call <sid>GotoResultFilePrev()<cr>
 endfunction
@@ -268,23 +268,23 @@ function! s:PlugGutentags()
     let g:gutentags_ctags_tagfile = '.tags'
     let g:gutentags_modules = ['ctags']
     let g:gutentags_cache_dir = expand(s:_tags_cache_dir)
-    let g:gutentags_ctags_extra_args = ["--c-kinds=+p",
-                \ "--fields=+iaS",
-                \ "--extra=+q",
-                \ "--excmd=number",
-                \ "--exclude=*.vim"]
+    let g:gutentags_ctags_extra_args = [
+        \"--c-kinds=+p",
+        \ "--fields=+iaS",
+        \ "--extra=+q",
+        \ "--excmd=number",
+        \ "--exclude=*.vim"]
     let gutentags_define_advanced_commands = 0
     let g:gutentags_auto_add_gtags_cscope = 0
     let g:gutentags_generate_on_empty_buffer = 0
 endfunction
 
 function! s:PlugYouCompleteMe()
-    Plug 'ycm-core/YouCompleteMe'
+    Plug 'ycm-core/YouCompleteMe', {'for':['c','cpp','python','go','vim','sh']}
     let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
-    let g:ycm_key_invoke_completion = '<leader>z'
     let g:ycm_semantic_triggers =  {
-			\ 'c,cpp,python,go': ['re!\w{2}'],
-			\ }
+        \ 'c,cpp,python,go,vim,sh': ['re!\w{2}'],
+        \ }
     let g:ycm_error_symbol = '>>'
     let g:ycm_warning_symbol = '>*'
     let g:ycm_always_populate_location_list = 1
@@ -304,12 +304,22 @@ function! s:PlugInterestingWords()
     endwhile
 endfunction
 
+function! s:PlugListToggle()
+    Plug 'Valloric/ListToggle'
+    let g:lt_location_list_toggle_map = '<leader>tl'
+    let g:lt_quickfix_list_toggle_map = '<leader>tq'
+endfunction
+
 function! s:InitPlug()
     call plug#begin('~/.vim/plugged')
+
+    call s:PlugListToggle()
+
     call s:PlugFzf()
     call s:PlugGutentags()
     call s:PlugYouCompleteMe()
     call s:PlugInterestingWords()
+
     call plug#end()
 endfunction
 
@@ -321,23 +331,23 @@ function! StatusLineGetPos()
 endfunction
 
 function! s:SetStatusLine()
-	" 设置状态行显示常用信息
-	" %F 完整文件路径名
-	" %m 当前缓冲被修改标记
-	" %m 当前缓冲只读标记
-	" %h 帮助缓冲标记
-	" %w 预览缓冲标记
-	" %Y 文件类型
-	" %b ASCII值
-	" %B 十六进制值
-	" %l 行数
-	" %v 列数
-	" %p 当前行数占总行数的的百分比
-	" %L 总行数
-	" %{...} 评估表达式的值，并用值代替
-	" %{"[fenc=".(&fenc==""?&enc:&fenc).((exists("+bomb") && &bomb)?"+":"")."]"} 显示文件编码
-	" %{&ff} 显示文件类型
-	set statusline=%F%m%r%h%w
+    " 设置状态行显示常用信息
+    " %F 完整文件路径名
+    " %m 当前缓冲被修改标记
+    " %m 当前缓冲只读标记
+    " %h 帮助缓冲标记
+    " %w 预览缓冲标记
+    " %Y 文件类型
+    " %b ASCII值
+    " %B 十六进制值
+    " %l 行数
+    " %v 列数
+    " %p 当前行数占总行数的的百分比
+    " %L 总行数
+    " %{...} 评估表达式的值，并用值代替
+    " %{"[fenc=".(&fenc==""?&enc:&fenc).((exists("+bomb") && &bomb)?"+":"")."]"} 显示文件编码
+    " %{&ff} 显示文件类型
+    set statusline=%F%m%r%h%w
     set statusline+=%=
     set statusline+=%{StatusLineGetPos()}
     set statusline+=[%Y]
@@ -345,10 +355,10 @@ function! s:SetStatusLine()
     set statusline+=[%{&ff}]
     set statusline+=%{SearchResultStatusLine()}
 
-	" 设置 laststatus = 0 ，不显式状态行
-	" 设置 laststatus = 1 ，仅当窗口多于一个时，显示状态行
-	" 设置 laststatus = 2 ，总是显式状态行
-	set laststatus=2
+    " 设置 laststatus = 0 ，不显式状态行
+    " 设置 laststatus = 1 ，仅当窗口多于一个时，显示状态行
+    " 设置 laststatus = 2 ，总是显式状态行
+    set laststatus=2
 endfunction
 
 function! s:GetAllFiles()
@@ -450,17 +460,55 @@ function! s:MapLeader_la()
     call fzf#run(opt)
 endfunction
 
+function! s:MapLeader_em()
+    let ext = expand('%:e')
+    let file_name = expand('%:t')
+    let result = matchlist(file_name, '\v.+\.')
+    if len(result) == 0
+        return
+    endif
+
+    if ext ==# 'h'
+        call fzf#run({
+                    \'source': 'find . -name ' .result[0] . 'c -o -name ' . result[0] . 'cpp',
+                    \'sink': 'e',
+                    \'down': '50%'})
+    elseif ext ==# 'c' || ex ==# 'cpp'
+                    \'source': 'find . -name ' .result[0] . 'h',
+                    \'sink': 'e',
+                    \'down': '50%'})
+    enddif
+endfunction
+
+function! s:MapLeader_yp()
+    let @0 = expand('%:p')
+    let @" = @0
+    let @* = @0
+endfunction
+
+function! s:MapLeader_yn()
+    let @0 = expand('%:t')
+    let @" = @0
+    let @* = @0
+endfunction
+
 function! s:InitMap()
     let g:mapleader = ','
     let g:maplocalleader = '-'
+
     inoremap jk <esc>
     cnoremap jk <esc>
 
     call s:InitSearchMap()
 
+    nnoremap <leader>0 viw"0p
+
     nnoremap <leader>d :call <sid>MapLeader_d()<cr>
 
     nnoremap <leader>ev :e ~/.vimrc<cr>
+    nnoremap <leader>em :call <sid>MapLeader_em()<cr>
+    nnoremap <leader>ga :GutentagsUpdate!<cr>
+    nnoremap <leader>gl :GutentagsUpdate<cr>
 
     nnoremap <leader>lf :call fzf#run({'source':<sid>GetAllFiles(), 'down':'50%', 'sink':'e'})<cr>
     nnoremap <leader>lb :Buffers<cr>
@@ -468,6 +516,21 @@ function! s:InitMap()
     nnoremap <leader>lh :Helptags<cr>
     nnoremap <leader>lt :call <sid>MapLeader_lt()<cr>
     nnoremap <leader>la :call <sid>MapLeader_la()<cr>
+
+    nnoremap <leader>yp :call <sid>MapLeader_yp()<cr>
+    nnoremap <leader>yn :call <sid>MapLeader_yn()<cr>
+    nnoremap <leader>w :w<cr>
+
+    nnoremap <space> @=((foldclosed(line('.')) < 0) ? 'zc' : 'zo')<cr>
+
+    nnoremap <c-h> <c-w>h
+    nnoremap <c-j> <c-w>j
+    nnoremap <c-k> <c-w>k
+    nnoremap <c-l> <c-w>l
+    tnoremap <c-h> <c-w>h
+    tnoremap <c-j> <c-w>j
+    tnoremap <c-k> <c-w>k
+    tnoremap <c-l> <c-w>l
 endfunction
 
 function! s:Autocmd_SetHelpOption()
