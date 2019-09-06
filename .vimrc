@@ -7,9 +7,8 @@ let s:search_result_cur_line = 0
 let s:search_result_job = job_start(":")
 let s:search_result_word = ''
 let s:search_path = getcwd()
-let s:rg_path = '/usr/bin/rg'
-let s:bash_path = '/usr/bin/bash'
-let s:search_result_show = 0
+let s:rg_path = 'rg'
+let s:bash_path = 'bash'
 
 function! SearchResultStatusLine()
     if job_status(s:search_result_job) == 'run'
@@ -96,17 +95,11 @@ function! s:RgAsyncFinishHandler()
         return
     endif
 
-    if s:search_result_show == 0
-        return
-    endif
-    let s:search_result_show = 0
-
     let s:search_result_curr_line = 0
 
-    " setlocal autoread
-    setlocal autoread
     execute 'view ' . s:search_result_file
-    execute "normal /\\%$//;?^>>?2\<cr>"
+    setlocal autoread
+    execute "normal /\\%$/;?^>>?2\<cr>"
     
     let s:search_result_list = getline(1, '$')
     let cur_pos = getcurpos()
@@ -114,10 +107,6 @@ function! s:RgAsyncFinishHandler()
 endfunction
 
 function! RgAsyncCloseCbHandler(channel)
-    call s:RgAsyncFinishHandler()
-endfunction
-
-function! RgAsyncExitCbHandler(job, exit_status)
     call s:RgAsyncFinishHandler()
 endfunction
 
@@ -131,10 +120,8 @@ function! s:RgAsyncRun(word, path)
         call job_stop(s:search_result_job)
     endif
     let s:search_result_job = a:word
-    let s:search_result_show = 1
     let s:search_result_job = job_start([s:bash_path, '-c', cmd], {
-                \'close_cb': 'RgAsyncCloseCbHandler',
-                \'exit_cb': 'RgAsyncExitCbHandler'
+                \'close_cb': 'RgAsyncCloseCbHandler'
                 \})
 endfunction
 
