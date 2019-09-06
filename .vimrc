@@ -39,6 +39,7 @@ function! s:GotoResultLine(words)
 endfunction
 
 function! s:GotoResultFileCur()
+    let s:search_result_list = getline(1, '$')
     let cur_pos = getpos('.')
     let s:search_result_cur_line = cur_pos[1]
     let check_result = s:SearchResultCurLineCheck(s:search_result_cur_line)
@@ -90,7 +91,7 @@ function! s:GotoResultFilePrev()
     call s:GotoResultLine(check_result[1])
 endfunction
 
-function! s:RgAsyncFinishHandler()
+function! RgAsyncFinishHandler(channel)
     if job_status(s:search_result_job) == "run"
         return
     endif
@@ -106,10 +107,6 @@ function! s:RgAsyncFinishHandler()
     let s:search_result_cur_line = cur_pos[1]
 endfunction
 
-function! RgAsyncCloseCbHandler(channel)
-    call s:RgAsyncFinishHandler()
-endfunction
-
 function! s:RgAsyncRun(word, path)
     if a:word[0] == "'" || a:word[0] == '"'
         let cmd = s:rg_path . ' -L --no-ignore --column --line-number -H ' . a:word . ' ' . a:path . ' | dos2unix >>' . s:search_result_file
@@ -119,10 +116,11 @@ function! s:RgAsyncRun(word, path)
     if job_status(s:search_result_job) == "run"
         call job_stop(s:search_result_job)
     endif
-    let s:search_result_job = a:word
-    let s:search_result_job = job_start([s:bash_path, '-c', cmd], {
-                \'close_cb': 'RgAsyncCloseCbHandler'
-                \})
+
+    let s:search_result_word = a:word
+    let s:search_result_job = job_start(['bash', '-c', cmd], {
+        \'close_cb': 'RgAsyncFinishHandler'
+        \})
 endfunction
 
 "word:
