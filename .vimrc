@@ -92,10 +92,6 @@ function! s:GotoResultFilePrev()
 endfunction
 
 function! RgAsyncFinishHandler(channel)
-    if job_status(s:search_result_job) == "run"
-        return
-    endif
-
     let s:search_result_curr_line = 0
 
     execute 'view ' . s:search_result_file
