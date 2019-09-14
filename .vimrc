@@ -160,11 +160,11 @@ function! s:MapLeader_R()
     call s:RgWithLineNumber(expand('<cword>'), '', 1)
 endfunction
 
-function! s:MapLeader_fl()
+function! s:MapLeader_sl()
     call s:RgWithLineNumber(expand('<cword>'), expand('%'), 0)
 endfunction
 
-function! s:MapLeader_fs()
+function! s:MapLeader_ss()
     if job_status(s:search_result_job) == "run"
         call job_stop(s:search_result_job)
     endif
@@ -179,8 +179,8 @@ endfunction
 function! s:InitSearchMap()
     nnoremap <leader>r :call <sid>MapLeader_r()<cr>
     nnoremap <leader>R :call <sid>MapLeader_R()<cr>
-    nnoremap <leader>fl :call <sid>MapLeader_fl()<cr>
-    nnoremap <leader>fs :call <sid>MapLeader_fs()<cr>
+    nnoremap <leader>sl :call <sid>MapLeader_sl()<cr>
+    nnoremap <leader>ss :call <sid>MapLeader_ss()<cr>
     nnoremap <leader>q :call <sid>MapLeader_q()<cr>
     nnoremap <C-N> :call <sid>GotoResultFileNext()<cr>
     nnoremap <C-P> :call <sid>GotoResultFilePrev()<cr>
@@ -211,6 +211,7 @@ function! s:InitBase()
     set background=dark
     set cursorline
     highlight CursorLine cterm=NONE ctermbg=236
+    highlight MatchParen ctermbg=240
     set nocompatible
     set number
     set history=100
@@ -473,6 +474,23 @@ function! s:MapLeader_yn()
     let @* = @0
 endfunction
 
+function! s:MapLeader_f()
+    let cmd = ""
+    if &filetype == "c" || &filetype == "cpp"
+"        let cmd = '?\(^\s*\(\w\+\s\+\)\{-0,1}\w\+[\* ]\+\zs\w\+\s*\(else\s\+if\s*\)\@<!(\_[^;]\{-})\(\_[^;]\)\{-}{\)\|\(^\s*#define\s\+\zs\w\+(\)?'
+        let cmd = '?^\s*\(\w\+\s\+\)\{-0,1}\w\+[\* ]\+\zs\w\+\s*\(else\s\+if\s*\)\@<!(\_[^;]\{-})\(\_[^;]\)\{-}{?'
+    elseif &filetype == "python"
+        let cmd = '?^\s*def\s\+\zs\w\+?'
+    elseif &filetype == "sh"
+        let cmd = '?^\s*\zs\w\+()'
+    elseif &filetype == "vim"
+        let cmd = '?^func\%[tion!]\s\+\(\w:\)\=\zs\w\+\s*(?'
+    else
+        return
+    endif
+    execute "normal " . cmd . "\<cr>"
+endfunction
+
 function! s:InitMap()
     let g:mapleader = ','
     let g:maplocalleader = '-'
@@ -490,6 +508,8 @@ function! s:InitMap()
     nnoremap <leader>em :call <sid>MapLeader_em()<cr>
     nnoremap <leader>ga :GutentagsUpdate!<cr>
     nnoremap <leader>gl :GutentagsUpdate<cr>
+
+    nnoremap <leader>f :call <sid>MapLeader_f()<cr>
 
     nnoremap <leader>lf :call fzf#run({'source':<sid>GetAllFiles(), 'down':'50%', 'sink':'e'})<cr>
     nnoremap <leader>lb :Buffers<cr>
@@ -544,15 +564,15 @@ function! s:cur_is_struct_member(line, col)
     let cur_col = a:col
     while cur_col != 0
         let cur_char = a:line[cur_col]
-        if cur_char >=# 'a' && cuur_char <=# 'z'
+        if cur_char >=# 'a' && cur_char <=# 'z'
             let cur_col = cur_col - 1
             continue
         endif
-        if cur_char >=# 'A' && cuur_char <=# 'Z'
+        if cur_char >=# 'A' && cur_char <=# 'Z'
             let cur_col = cur_col - 1
             continue
         endif
-        if cur_char >=# '0' && cuur_char <=# '9'
+        if cur_char >=# '0' && cur_char <=# '9'
             let cur_col = cur_col - 1
             continue
         endif
@@ -621,12 +641,14 @@ function! s:GotoTag(tag_name)
 endfunction
 
 function! s:GotoInclude(line)
-    let match_result = matchlist(a:line, '\v#include +"(.+/)*(.+\.[ch]"')
+    echom '--------'
+    let regex_str = '#include \+["<]\(\(.\+/\)*\(.\+\.[ch]\)\)[">]'
+    let match_result = matchlist(a:line, regex_str)
     if len(match_result) == 0 || match_result[2] == ''
         return 0
     endif
     call fzf#run({
-                \'source':'find . -name ' . match_result[2],
+                \'source':'find . -path *' . match_result[1],
                 \'sink': 'e',
                 \'down': '50%'})
     return 1
