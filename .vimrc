@@ -242,6 +242,7 @@ endfunction
 
 function! s:PlugFzf()
     Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+    Plug 'junegunn/fzf.vim'
 endfunction
 
 function! s:PlugGutentags()
@@ -477,8 +478,8 @@ endfunction
 function! s:MapLeader_f()
     let cmd = ""
     if &filetype == "c" || &filetype == "cpp"
-"        let cmd = '?\(^\s*\(\w\+\s\+\)\{-0,1}\w\+[\* ]\+\zs\w\+\s*\(else\s\+if\s*\)\@<!(\_[^;]\{-})\(\_[^;]\)\{-}{\)\|\(^\s*#define\s\+\zs\w\+(\)?'
-        let cmd = '?^\s*\(\w\+\s\+\)\{-0,1}\w\+[\* ]\+\zs\w\+\s*\(else\s\+if\s*\)\@<!(\_[^;]\{-})\(\_[^;]\)\{-}{?'
+        "let cmd = '?^\s*\(\w\+\s\+\)\{-0,1}\w\+[\* ]\+\zs\w\+\s*\(else\s\+if\s*\)\@<!(\_[^;]\{-})\(\_[^;]\)\{-}{?'
+        let cmd = '?^.\{-0,}\zs\w\+\s*\(else\s\+if\s*\)\@<!(\_[^;]\{-})\(\_[^;]\)\{-}{?'
     elseif &filetype == "python"
         let cmd = '?^\s*def\s\+\zs\w\+?'
     elseif &filetype == "sh"
@@ -503,6 +504,7 @@ function! s:InitMap()
     nnoremap <leader>0 viw"0p
 
     nnoremap <leader>d :call <sid>MapLeader_d()<cr>
+    nnoremap <leader>D :call <sid>MapLeader_D()<cr>
 
     nnoremap <leader>ev :e ~/.vimrc<cr>
     nnoremap <leader>em :call <sid>MapLeader_em()<cr>
@@ -641,7 +643,6 @@ function! s:GotoTag(tag_name)
 endfunction
 
 function! s:GotoInclude(line)
-    echom '--------'
     let regex_str = '#include \+["<]\(\(.\+/\)*\(.\+\.[ch]\)\)[">]'
     let match_result = matchlist(a:line, regex_str)
     if len(match_result) == 0 || match_result[2] == ''
@@ -694,6 +695,10 @@ function! s:MapLeader_d()
     else
         call s:GotoTag(expand("<cword>"))
     endif
+endfunction
+
+function! s:MapLeader_D()
+    YcmCompleter GoToDeclaration
 endfunction
 
 "------------ leader d ------------
