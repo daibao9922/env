@@ -94,6 +94,10 @@ endfunction
 function! RgAsyncFinishHandler(channel)
     let s:search_result_curr_line = 0
 
+    if job_status(s:search_result_job) == "run"
+        return
+    endif
+
     execute 'view ' . s:search_result_file
     setlocal autoread
     execute "normal /\\%$/;?^>>?2\<cr>"
@@ -213,6 +217,7 @@ function! s:InitBase()
     highlight CursorLine cterm=NONE ctermbg=236
     highlight MatchParen ctermbg=240
     set nocompatible
+    set backspace=indent,eol,start
     set number
     set history=100
     set noignorecase
@@ -300,7 +305,7 @@ function! s:InitPlug()
 
     call s:PlugFzf()
     call s:PlugGutentags()
-    call s:PlugYouCompleteMe()
+    "call s:PlugYouCompleteMe()
     call s:PlugInterestingWords()
 
     call plug#end()
