@@ -211,11 +211,6 @@ function! s:InitBase()
     syntax on
     syntax enable
 
-    set t_Co=256
-    set background=dark
-    set cursorline
-    highlight CursorLine cterm=NONE ctermbg=236
-    highlight MatchParen ctermbg=240
     set nocompatible
     set backspace=indent,eol,start
     set number
@@ -298,15 +293,101 @@ function! s:PlugListToggle()
     let g:lt_quickfix_list_toggle_map = '<leader>tq'
 endfunction
 
+function! s:PlugColorschemeMolokai()
+    set rtp+=~/.vim/plugged/molokai
+    Plug 'tomasr/molokai'
+    
+    set t_Co=256
+    set background=dark
+    set cursorline
+    colorscheme molokai
+endfunction
+
+function! s:PlugDirDiff()
+    Plug 'will133/vim-dirdiff'
+    
+    let g:DirDiffExcludes = ".*.swp"
+endfunction
+
+function! s:PlugTagbar()
+    Plug 'majutsushi/tagbar'
+    
+    let g:tagbar_type_c = {
+        \ 'kinds' : [
+            \ 'd:macros:0:0',
+            \ 'p:prototypes:0:0',
+            \ 'g:enums',
+            \ 'e:enumerators:0:0',
+            \ 't:typedefs:0:0',
+            \ 's:structs',
+            \ 'u:unions',
+            \ 'm:members:0:0',
+            \ 'v:variables:0:0',
+            \ 'f:functions',
+            \ '?:unknown',
+        \],
+    \}
+    let g:tagbar_left = 1
+    let g:tagbar_autofocus = 1
+    let g:tagbar_sort = 0
+    let g:tagbar_compact = 1
+endfunction
+
+function! s:PlugNerdTree()
+    Plug 'scrooloose/nerdtree'
+    
+    let g:NERDTreeWinPos='right'
+    let g:NERDTreeChDirMode=1
+    let g:NERDTreeShowHidden=1
+    let g:NERDTreeShowBookmarks=1
+    let g:NERDTreeIgnore=['\.swp$[[file]]', '\.pyc$[[file]]', '\.o$[[file]]']
+endfunction
+
+function! s:PlugAsyncRun()
+    Plug 'skywind3000/asyncrun.vim'
+    
+    let g:asyncrun_open = 10
+endfunction
+
+function! s:PlugIndentLine()
+    Plug 'Yggdroot/indentLine'
+    
+    let g:indentLine_fileType = ['c', 'cpp', 'python', 'vim']
+endfunction
+
+function! s:PlugPythonMode()
+    Plug 'klen/python-mode'
+    
+    let g:pymode_option = 1
+    let g:pymode = 1
+    let g:pymode_syntax_all = 0
+    
+    let g:pymode_python = 'python'
+endfunction
+
+function! s:PlugFugitive()
+    Plug 'tpope/vim-fugitive'
+endfunction
+
 function! s:InitPlug()
     call plug#begin('~/.vim/plugged')
 
+    call s:PlugColorschemeMolokai()
     call s:PlugListToggle()
-
+    call s:PlugDirDiff()
+    call s:PlugTagbar()
+    call s:PlugNerdTree()
+    call s:PlugAsyncRun()
     call s:PlugFzf()
-    call s:PlugGutentags()
-    "call s:PlugYouCompleteMe()
     call s:PlugInterestingWords()
+    
+    if isdirectory("./.git")
+        call s:PlugGutentags()
+        call s:PlugYouCompleteMe()
+        call s:PlugIndentLine()
+        call s:PlugPythonMode()
+        call s:PlugFugitive()
+    endif
 
     call plug#end()
 endfunction
