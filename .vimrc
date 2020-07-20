@@ -372,7 +372,7 @@ endfunction
 function! s:InitPlug()
     call plug#begin('~/.vim/plugged')
 
-    call s:PlugColorschemeMolokai()
+    "call s:PlugColorschemeMolokai()
     call s:PlugListToggle()
     call s:PlugDirDiff()
     call s:PlugTagbar()
@@ -383,7 +383,7 @@ function! s:InitPlug()
     
     if isdirectory("./.git")
         call s:PlugGutentags()
-        call s:PlugYouCompleteMe()
+        "call s:PlugYouCompleteMe()
         call s:PlugIndentLine()
         call s:PlugPythonMode()
         call s:PlugFugitive()
