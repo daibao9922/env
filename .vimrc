@@ -245,6 +245,10 @@ function! s:PlugFzf()
     Plug 'junegunn/fzf.vim'
 endfunction
 
+function! s:PlugCocNvim()
+    Plug 'neoclide/coc.nvim', {'branch': 'release'}
+endfunction
+
 function! s:PlugGutentags()
     Plug 'ludovicchabant/vim-gutentags'
     let g:gutentags_project_root = ['.git']
@@ -380,12 +384,13 @@ function! s:InitPlug()
     call s:PlugAsyncRun()
     call s:PlugFzf()
     call s:PlugInterestingWords()
+    call s:PlugCocNvim()
     
     if isdirectory("./.git")
         call s:PlugGutentags()
         "call s:PlugYouCompleteMe()
         call s:PlugIndentLine()
-        call s:PlugPythonMode()
+        "call s:PlugPythonMode()
         call s:PlugFugitive()
     endif
 
