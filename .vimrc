@@ -220,7 +220,7 @@ function! s:InitBase()
     set wrap
     set noswapfile
     set nowrapscan
-    set mouse=a
+    set mouse-=a  "allow mouse copy
     set hidden
     set wmh=0
 endfunction
@@ -405,22 +405,22 @@ function! StatusLineGetPos()
 endfunction
 
 function! s:SetStatusLine()
-    " ÉèÖÃ×´Ì¬ĞĞÏÔÊ¾³£ÓÃĞÅÏ¢
-    " %F ÍêÕûÎÄ¼şÂ·¾¶Ãû
-    " %m µ±Ç°»º³å±»ĞŞ¸Ä±ê¼Ç
-    " %m µ±Ç°»º³åÖ»¶Á±ê¼Ç
-    " %h °ïÖú»º³å±ê¼Ç
-    " %w Ô¤ÀÀ»º³å±ê¼Ç
-    " %Y ÎÄ¼şÀàĞÍ
-    " %b ASCIIÖµ
-    " %B Ê®Áù½øÖÆÖµ
-    " %l ĞĞÊı
-    " %v ÁĞÊı
-    " %p µ±Ç°ĞĞÊıÕ¼×ÜĞĞÊıµÄµÄ°Ù·Ö±È
-    " %L ×ÜĞĞÊı
-    " %{...} ÆÀ¹À±í´ïÊ½µÄÖµ£¬²¢ÓÃÖµ´úÌæ
-    " %{"[fenc=".(&fenc==""?&enc:&fenc).((exists("+bomb") && &bomb)?"+":"")."]"} ÏÔÊ¾ÎÄ¼ş±àÂë
-    " %{&ff} ÏÔÊ¾ÎÄ¼şÀàĞÍ
+    " è®¾ç½®çŠ¶æ€è¡Œæ˜¾ç¤ºå¸¸ç”¨ä¿¡æ¯
+    " %F å®Œæ•´æ–‡ä»¶è·¯å¾„å
+    " %m å½“å‰ç¼“å†²è¢«ä¿®æ”¹æ ‡è®°
+    " %m å½“å‰ç¼“å†²åªè¯»æ ‡è®°
+    " %h å¸®åŠ©ç¼“å†²æ ‡è®°
+    " %w é¢„è§ˆç¼“å†²æ ‡è®°
+    " %Y æ–‡ä»¶ç±»å‹
+    " %b ASCIIå€¼
+    " %B åå…­è¿›åˆ¶å€¼
+    " %l è¡Œæ•°
+    " %v åˆ—æ•°
+    " %p å½“å‰è¡Œæ•°å æ€»è¡Œæ•°çš„çš„ç™¾åˆ†æ¯”
+    " %L æ€»è¡Œæ•°
+    " %{...} è¯„ä¼°è¡¨è¾¾å¼çš„å€¼ï¼Œå¹¶ç”¨å€¼ä»£æ›¿
+    " %{"[fenc=".(&fenc==""?&enc:&fenc).((exists("+bomb") && &bomb)?"+":"")."]"} æ˜¾ç¤ºæ–‡ä»¶ç¼–ç 
+    " %{&ff} æ˜¾ç¤ºæ–‡ä»¶ç±»å‹
     set statusline=%F%m%r%h%w
     set statusline+=%=
     set statusline+=%{StatusLineGetPos()}
@@ -429,9 +429,9 @@ function! s:SetStatusLine()
     set statusline+=[%{&ff}]
     set statusline+=%{SearchResultStatusLine()}
 
-    " ÉèÖÃ laststatus = 0 £¬²»ÏÔÊ½×´Ì¬ĞĞ
-    " ÉèÖÃ laststatus = 1 £¬½öµ±´°¿Ú¶àÓÚÒ»¸öÊ±£¬ÏÔÊ¾×´Ì¬ĞĞ
-    " ÉèÖÃ laststatus = 2 £¬×ÜÊÇÏÔÊ½×´Ì¬ĞĞ
+    " è®¾ç½® laststatus = 0 ï¼Œä¸æ˜¾å¼çŠ¶æ€è¡Œ
+    " è®¾ç½® laststatus = 1 ï¼Œä»…å½“çª—å£å¤šäºä¸€ä¸ªæ—¶ï¼Œæ˜¾ç¤ºçŠ¶æ€è¡Œ
+    " è®¾ç½® laststatus = 2 ï¼Œæ€»æ˜¯æ˜¾å¼çŠ¶æ€è¡Œ
     set laststatus=2
 endfunction
 
