@@ -229,8 +229,12 @@ function! s:InitBase()
     set wrap
     set noswapfile
     set nowrapscan
-    set mouse-=a  "allow mouse copy
+    set mouse=a
+    
+    " 如果修改了当前文件没有保存，切换文件的时候不提示保存
     set hidden
+    
+    " 如果最大化split窗格的话，其他窗口尽量缩到最小
     set wmh=0
 endfunction
 
@@ -511,6 +515,8 @@ function! s:PlugColorschemeMolokai()
     set background=dark
     set cursorline
     colorscheme molokai
+    "highlight CursorLine cterm=NONE ctermbg=235
+    "highlight CursorLineNr cterm=NONE ctermbg=235
 endfunction
 
 function! s:PlugDirDiff()
@@ -578,7 +584,7 @@ endfunction
 function! s:InitPlug()
     call plug#begin('~/.vim/plugged')
 
-    "call s:PlugColorschemeMolokai()
+    call s:PlugColorschemeMolokai()
     call s:PlugListToggle()
     call s:PlugDirDiff()
     call s:PlugTagbar()
@@ -591,7 +597,7 @@ function! s:InitPlug()
     
     call s:PlugGutentags()
     call s:PlugCocNvim()
-    "call s:PlugIndentLine()
+    call s:PlugIndentLine()
     "call s:PlugPythonMode()
     call s:PlugFugitive()
 
