@@ -1,4 +1,5 @@
 let s:_tags_cache_dir = '~/tmp/cache/tags'
+let s:_note_path_dir = '/home/bak/note'
 
 "######## search ##############
 let s:search_result_file = tempname()
@@ -404,9 +405,24 @@ function! s:PlugCocNvim()
 
 endfunction
 
+function! s:GetDefaultTagPath()
+    let cur_path = getcwd()
+    let tag_name = ''
+    for item in split(cur_path, '/')
+        let tag_name = tag_name . item . '-'
+    endfor
+    let tag_path = s:_tags_cache_dir . '/' . tag_name . '.tags'
+    return tag_path
+endfunction
+
+" 这个函数的目的是为了解决切换到其他目录的文件时，无法访问默认tag的问题
+function! s:ForceAddDefaultTag()
+    let &tags = &tags . ',' . s:GetDefaultTagPath()
+endfunction
+
 function! s:PlugGutentags()
     Plug 'ludovicchabant/vim-gutentags'
-    let g:gutentags_project_root = ['.git']
+    let g:gutentags_project_root = ['.git', '.svn']
     let g:gutentags_ctags_tagfile = '.tags'
     let g:gutentags_modules = ['ctags']
     let g:gutentags_cache_dir = expand(s:_tags_cache_dir)
@@ -419,6 +435,10 @@ function! s:PlugGutentags()
     let gutentags_define_advanced_commands = 0
     let g:gutentags_auto_add_gtags_cscope = 0
     let g:gutentags_generate_on_empty_buffer = 0
+
+    if s:IsDirExist('.git') || s:IsDirExist('.svn')
+        call s:ForceAddDefaultTag()
+    endif
 endfunction
 
 function! s:PlugYouCompleteMe()
@@ -543,7 +563,6 @@ function! s:InitPlug()
     
     if isdirectory("./.git")
         call s:PlugGutentags()
-        "call s:PlugYouCompleteMe()
         call s:PlugIndentLine()
         "call s:PlugPythonMode()
         call s:PlugFugitive()
@@ -602,6 +621,11 @@ function! s:GetAllFiles()
                 \     -o \( -name "*.pyc" \)
                 \     -o \( -name "*.swp" \)
                 \ \) \)'
+    return cmd
+endfunction
+
+function! s:GetAllNoteFiles()
+    let cmd = 'find ' . s:_note_path_dir . ' -path "' . s:_note_path_dir . '/.git" -prune -o ! -type d'
     return cmd
 endfunction
 
@@ -760,6 +784,7 @@ function! s:InitMap()
     nnoremap <leader>f :call <sid>MapLeader_f()<cr>
 
     nnoremap <leader>lf :call fzf#run({'source':<sid>GetAllFiles(), 'down':'50%', 'sink':'e'})<cr>
+    nnoremap <leader>ln :call fzf#run({'source':<sid>GetAllNoteFiles(), 'down':'50%', 'sink':'e'})<cr>
     nnoremap <leader>lb :Buffers<cr>
     nnoremap <leader>ll :BLines<cr>
     nnoremap <leader>lh :Helptags<cr>
