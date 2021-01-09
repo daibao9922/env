@@ -1,5 +1,6 @@
 let s:_tags_cache_dir = '~/tmp/cache/tags'
 let s:_note_path_dir = '/home/bak/note'
+let s:_draw_it_open = 0
 
 "######## search ##############
 let s:search_result_file = tempname()
@@ -191,7 +192,7 @@ function! s:InitSearchMap()
     nnoremap <C-P> :call <sid>GotoResultFilePrev()<cr>
 endfunction
 
-function! s:SearchBufWinEnter()
+function! s:Autocmd_BufWinEnter()
     if expand("%") ==# s:search_result_file
         if s:search_result_cur_line != 0
             call setpos(".", [0, s:search_result_cur_line, 0, 0])
@@ -200,10 +201,17 @@ function! s:SearchBufWinEnter()
     endif
 endfunction
 
+function! s:Autocmd_VimLeave()
+    if filereadable(s:search_result_file)
+        call delete(s:search_result_file)
+    endif
+endfunction
+
 function! s:InitSearchAutocmd()
     augroup reg_search_autocmd
         autocmd!
-        autocmd BufWinEnter * call <sid>SearchBufWinEnter()
+        autocmd BufWinEnter * call <sid>Autocmd_BufWinEnter()
+        autocmd VimLeave * call <sid>Autocmd_VimLeave()
 endfunction
 
 "######## search end ##########
@@ -246,8 +254,31 @@ function! s:PlugFzf()
     Plug 'junegunn/fzf.vim'
 endfunction
 
+function! s:PlugDrawIt()
+    Plug 'vim-scripts/DrawIt'
+endfunction
+
+function! s:PlugTerminal()
+    Plug 'PangPangPangPangPang/vim-terminal'
+    let g:vs_terminal_custom_height = 20
+    let g:vs_terminal_custom_pos = 'top'
+endfunction
+
+function! s:PlugFugitive()
+    Plug 'tpope/vim-fugitive'
+endfunction
+
 function! s:PlugCocNvim()
     Plug 'neoclide/coc.nvim', {'branch': 'release'}
+    
+    "------------------- mine ---------------------
+    highlight CocErrorFloat ctermbg=39 ctermfg=0
+    highlight CocWarningFloat ctermbg=39 ctermfg=0
+    highlight Pmenu ctermbg=39 ctermfg=0
+    highlight PmenuSel ctermbg=80 ctermfg=0
+    
+    "set statusline+=[%{coc#status()}%{get(b:,'coc_current_function', '')}]
+    "------------------- mine ---------------------
 
     " TextEdit might fail if hidden is not set.
     set hidden
@@ -383,7 +414,7 @@ function! s:PlugCocNvim()
     " Add (Neo)Vim's native statusline support.
     " NOTE: Please see `:h coc-status` for integrations with external plugins that
     " provide custom statusline: lightline.vim, vim-airline.
-    set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+    " set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
     " Mappings for CoCList
     " Show all diagnostics.
@@ -436,7 +467,7 @@ function! s:PlugGutentags()
     let g:gutentags_auto_add_gtags_cscope = 0
     let g:gutentags_generate_on_empty_buffer = 0
 
-    if s:IsDirExist('.git') || s:IsDirExist('.svn')
+    if isdirectory('.git') || isdirectory('.svn')
         call s:ForceAddDefaultTag()
     endif
 endfunction
@@ -544,10 +575,6 @@ function! s:PlugPythonMode()
     let g:pymode_python = 'python'
 endfunction
 
-function! s:PlugFugitive()
-    Plug 'tpope/vim-fugitive'
-endfunction
-
 function! s:InitPlug()
     call plug#begin('~/.vim/plugged')
 
@@ -559,14 +586,14 @@ function! s:InitPlug()
     call s:PlugAsyncRun()
     call s:PlugFzf()
     call s:PlugInterestingWords()
-    call s:PlugCocNvim()
+    call s:PlugDrawIt()
+    call s:PlugTerminal()
     
-    if isdirectory("./.git")
-        call s:PlugGutentags()
-        call s:PlugIndentLine()
-        "call s:PlugPythonMode()
-        call s:PlugFugitive()
-    endif
+    call s:PlugGutentags()
+    call s:PlugCocNvim()
+    "call s:PlugIndentLine()
+    "call s:PlugPythonMode()
+    call s:PlugFugitive()
 
     call plug#end()
 endfunction
@@ -756,6 +783,10 @@ function! s:MapLeader_f()
         let cmd = '?^\s*\zs\w\+()'
     elseif &filetype == "vim"
         let cmd = '?^func\%[tion!]\s\+\(\w:\)\=\zs\w\+\s*(?'
+    elseif &filetype == "rust"
+        let cmd = '?\<fn\s\+\zs\w\+('
+    elseif &filetype == "lua"
+        let cmd = '?^\s*\<function\s\+\zs\w\+('
     else
         return
     endif
@@ -774,7 +805,6 @@ function! s:InitMap()
     nnoremap <leader>0 viw"0p
 
     nnoremap <leader>d :call <sid>MapLeader_d()<cr>
-    nnoremap <leader>D :call <sid>MapLeader_D()<cr>
 
     nnoremap <leader>ev :e ~/.vimrc<cr>
     nnoremap <leader>em :call <sid>MapLeader_em()<cr>
@@ -790,9 +820,20 @@ function! s:InitMap()
     nnoremap <leader>lh :Helptags<cr>
     nnoremap <leader>lt :call <sid>MapLeader_lt()<cr>
     nnoremap <leader>la :call <sid>MapLeader_la()<cr>
+    
+    nnoremap <leader>tn :set number!<cr>
+    nnoremap <leader>th :set hlsearch!<cr>set hlsearch?<cr>
+    nnoremap <leader>tw :set wrap!<cr>set wrap?<cr>
+    nnoremap <leader>tp :set paste!<cr>:set paste?<cr>
+    nnoremap <leader>tt :set TagbarToggle<cr>
+    nnoremap <leader>td :set NERDTreeToggle<cr>
+    nnoremap <leader>tc :set VSTerminalToggle<cr>
+    nnoremap <leader>ti :call <sid>SwitchDrawIt()<cr>
+    nnoremap <leader>tn :set number!<cr>
 
     nnoremap <leader>yp :call <sid>MapLeader_yp()<cr>
     nnoremap <leader>yn :call <sid>MapLeader_yn()<cr>
+    vnoremap <leader>y "+y
     nnoremap <leader>w :w<cr>
 
     nnoremap <space> @=((foldclosed(line('.')) < 0) ? 'zc' : 'zo')<cr>
@@ -816,14 +857,7 @@ function! s:InitAutocmd()
 
     augroup reg_autocmd
         autocmd!
-
         autocmd FileType help call <sid>Autocmd_SetHelpOption()
-
-        " jump to function name
-        autocmd FileType c,cpp nnoremap <localleader>f ?\(^\s*\(\w\+\s\+\)\{-0,1}\w\+[\* ]\+\zs\w\+\s*\(else\s\+if\s*\)\@<!(\_[^;]\{-})\(\_[^;]\)\{-}{\)\\|\(^\s*#define\s\+\zs\w\+(\)?<cr><cr>
-        autocmd FileType python nnoremap <localleader>f ?^\s*def\s\+\zs\w\+?<cr>
-        autocmd FileType sh nnoremap <localleader>f ?^\s*\zs\w\+()<cr>
-        autocmd FileType vim nnoremap <localleader>f ?^func\%[tion!]\s\+\(\w:\)\=\zs\w\+\s*(?<cr>
     augroup END
 endfunction
 
@@ -926,50 +960,8 @@ function! s:GotoInclude(line)
     return 1
 endfunction
 
-function! s:GotoDefinitionC()
-    let cur_line = getline(".")
-    let col = getcurpos()[2]
-
-    if s:cur_is_struct_member(cur_line, col)
-        let old_line_num = line('.')
-        YcmCompleter GoToDeclaration
-        if old_line_num == line('.')
-            call s:GotoTag(expand("<cword>"))
-        endif
-    elseif s:GotoInclude(cur_line)
-        return
-    else
-        call s:GotoTag(expand("<cword>"))
-    endif
-endfunction
-
-function! s:GotoDefinitionPython()
-    let cur_line = getline(".")
-    let col = getcurpos()[2]
-
-    if s:cur_is_struct_member(cur_line, col)
-        let old_line_num = line('.')
-        YcmCompleter GoToDeclaration
-        if old_line_num == line('.')
-            call s:GotoTag(expand("<cword>"))
-        endif
-    else
-        call s:GotoTag(expand("<cword>"))
-    endif
-endfunction
-
 function! s:MapLeader_d()
-    if &filetype == 'c' || &filetype == 'cpp'
-        call s:GotoDefinitionC()
-    elseif &FileType == 'python'
-        call s:GotoDefinitionPython()
-    else
-        call s:GotoTag(expand("<cword>"))
-    endif
-endfunction
-
-function! s:MapLeader_D()
-    YcmCompleter GoToDeclaration
+    call s:GotoTag(expand("<cword>"))
 endfunction
 
 "------------ leader d ------------
