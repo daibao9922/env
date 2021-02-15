@@ -1,0 +1,240 @@
+snippet if ""
+if (${1})
+{
+}
+endsnippet
+
+snippet el ""
+else
+{
+    ${1}
+}
+endsnippet
+
+snippet elif ""
+else if (${1})
+{
+}
+endsnippet
+
+snippet ifel ""
+if (${1})
+{
+}
+else
+{
+}
+endsnippet
+
+snippet ifelif ""
+if (${1})
+{
+}
+else if (${2})
+{
+}
+else
+{
+}
+endsnippet
+
+snippet wh ""
+while (${1})
+{
+}
+endsnippet
+
+snippet do ""
+do
+{
+}
+while (${1});
+endsnippet
+
+snippet for ""
+for (${1}; ${2}; ${3})
+{
+}
+endsnippet
+
+snippet fn ""
+${1}(${2})
+{
+    return;
+}
+
+endsnippet
+
+snippet / ""
+/* ${1} */
+endsnippet
+
+snippet // ""
+/*
+ * ${1}
+ */
+endsnippet
+
+snippet i ""
+#include "${1}"
+endsnippet
+
+snippet I ""
+#include <${1}>
+endsnippet
+
+snippet "\bn" "" r
+NULL
+endsnippet
+
+snippet ret ""
+return${1}
+endsnippet
+
+snippet "\bcha" "" r
+CHAR
+endsnippet
+
+snippet "\bboo" "" r
+BOOLEAN
+endsnippet
+
+snippet "\btru" "" r
+TRUE
+endsnippet
+
+snippet "\bfal" "" r
+FALSE
+endsnippet
+
+snippet "\bu64" "" r
+WORD64
+endsnippet
+
+snippet "\bu32" "" r
+WORD32
+endsnippet
+
+snippet "\bu16" "" r
+WORD16
+endsnippet
+
+snippet "\bu8" "" r
+BYTE
+endsnippet
+
+snippet "\bi64" "" r
+SWORD64
+endsnippet
+
+snippet "\bi32" "" r
+SWORD32
+endsnippet
+
+snippet "\bi16" "" r
+SWORD16
+endsnippet
+
+snippet "\bi8" "" r
+SBYTE
+endsnippet
+
+snippet "\bvoi" "" r
+VOID
+endsnippet
+
+snippet "\btyp" "" r
+typedef
+endsnippet
+
+snippet "\bsiz" "" r
+SIZEOF
+endsnippet
+
+snippet "\bbs" "" r
+BIT_SET
+endsnippet
+
+snippet "\bbt" "" r
+BIT_TEST
+endsnippet
+
+snippet "\bbr" "" r
+BIT_RESET
+endsnippet
+
+snippet st ""
+struct ${1}
+{
+};
+endsnippet
+
+snippet enu ""
+enum ${1}
+{
+};
+endsnippet
+
+snippet con ""
+continue;
+endsnippet
+
+snippet bre ""
+break;
+endsnippet
+
+snippet fptr ""
+typedef ${1:WORD32} (* ${2:func_name})();
+endsnippet
+
+snippet n2s ""
+snprintf(${1:buf), ${2:buf_size}, ${3:format}, ${4:arg});
+endsnippet
+
+snippet pr ""
+printf("${1:format)", ${2:arg});
+endsnippet
+
+snippet main ""
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <errno.h>
+
+typedef unsigned short     WORD16;
+typedef signed short       SWORD16;
+typedef unsigned int       WORD32;
+typedef signed int         SWORD32;
+typedef unsigned long long WORD64;
+typedef signed long long   SWORD64;
+typedef signed long int    SWORPTR;
+typedef unsigned long int  WORDPTR;
+typedef size_t             SIZE_T;
+typedef char               CHAR;
+typedef unsigned char      BYTE;
+typedef signed char        SBYTE;
+typedef unsigned char      BOOLEAN;
+
+#ifndef __cplusplus
+typedef void               VOID;
+#else
+#define VOID               void;
+#endif
+
+#if (!define(TRUE) || (TRUE ! = 1))
+#undef TRUE
+#define TRUE     1
+#endif
+
+#if (!define(FALSE) || (FALSE ! = 0))
+#undef FALSE
+#define FALSE    0
+#endif
+
+SWORD32 main(SWORD32 argc, CHAR **argv)
+{
+    ${1}
+    return 0;
+}
+
+endsnippet

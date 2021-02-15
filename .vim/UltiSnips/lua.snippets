@@ -1,0 +1,61 @@
+snippet if ""
+if (${1}) then
+end
+endsnippet
+
+snippet el ""
+else
+    ${1}
+endsnippet
+
+snippet ifel ""
+if (${1}) then
+else
+end
+endsnippet
+
+snippet elif ""
+elseif (${1}) then
+endsnippet
+
+snippet ifelif ""
+if (${1}) then
+elseif (${2}) then
+else
+end
+endsnippet
+
+snippet / ""
+-- ${1}
+endsnippet
+
+snippet // ""
+--[[
+${1}
+--]]
+endsnippet
+
+snippet wh ""
+while (${1}) then
+end
+endsnippet
+
+snippet for ""
+for ${1:var} = ${2:init_value}, ${3:end_value}, ${4:step} do
+end
+endsnippet
+
+snippet forin ""
+for ${1:index}, ${2:value} in ipairs(${3}) do
+end
+endsnippet
+
+snippet pr ""
+print(${1})
+endsnippet
+
+snippet "\bn" "" r
+nil
+endsnippet
+
+

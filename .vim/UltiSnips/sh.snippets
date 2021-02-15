@@ -1,0 +1,93 @@
+snippet if ""
+if [[ ${1} ]]; then
+fi
+endsnippet
+
+snippet el ""
+else
+    ${1}
+endsnippet
+
+snippet elif ""
+elif [[ ${1} ]]; then
+endsnippet
+
+snippet ifel ""
+if [[ ${1} ]]; then
+else
+fi
+endsnippet
+
+snippet ifelif ""
+if [[ ${1} ]]; then
+elif [[ ${2} ]]; then
+else
+fi
+endsnippet
+
+snippet forin ""
+for ${1:var} in ${2}; do
+done
+endsnippet
+
+snippet wh ""
+while [[ ${1} ]]; do
+done
+endsnippet
+
+snippet / ""
+# {1}
+endsnippet
+
+snippet // ""
+: '
+${1}
+'
+endsnippet
+
+snippet fn ""
+${1:func_name}()
+{
+    local ${2:arg1}=$1
+}
+endsnippet
+
+snippet lv ""
+local ${1:name}=${2:value}
+endsnippet
+
+snippet gv ""
+g_${1:name}=${2:value}
+endsnippet
+
+snippet env ""
+#!/bin/bash
+endsnippet
+
+snippet con ""
+continue
+endsnippet
+
+snippet bre ""
+break
+endsnippet
+
+snippet n2s ""
+"${1}"
+endsnippet
+
+snippet pr ""
+echo ${1}
+endsnippet
+
+snippet main ""
+#!/bin/bash
+main()
+{
+    ${1}
+}
+
+main $@
+
+endsnippet
+

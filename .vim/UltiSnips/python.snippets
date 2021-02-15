@@ -1,0 +1,106 @@
+snippet if ""
+if ${1}:
+endsnippet
+
+snippet el ""
+else:
+    ${1}
+endsnippet
+
+snippet elif ""
+elif ${1}:
+endsnippet
+
+snippet ifel ""
+if ${1}:
+else:
+endsnippet
+
+snippet ifelif ""
+if ${1}:
+elif ${2}:
+else:
+endsnippet
+
+snippet / ""
+# ${1}
+endsnippet
+
+snippet // ""
+'''
+${1}
+'''
+endsnippet
+
+snippet i ""
+import ${1}
+endsnippet
+
+snippet n ""
+None
+endsnippet
+
+snippet tru ""
+True
+endsnippet
+
+snippet fal ""
+False
+endsnippet
+
+snippet lv ""
+${1:name} = ${2:value}
+endsnippet
+
+snippet fn ""
+def ${1:func_name}():
+    ${2}
+endsnippet
+
+snippet main ""
+#!/usr/bin/env python3
+
+import sys
+import os
+
+def main():
+    ${1}
+
+if __name__ == '__main__':
+    main()
+
+endsnippet
+
+snippet list ""
+${1:list_name} = []
+endsnippet
+
+snippet dict ""
+${1:dict_name} = {
+    '${2:key}' = ${3:value},
+}
+endsnippet
+
+snippet env ""
+#!/usr/bin/env python3
+endsnippet
+
+snippet con ""
+continue
+endsnippet
+
+snippet bre ""
+break
+endsnippet
+
+snippet n2s ""
+str(${1})
+endsnippet
+
+snippet s2n ""
+int(${1:str)}
+endsnippet
+
+snippet pr ""
+print("${1}" % (${2}))
+endsnippet
