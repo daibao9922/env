@@ -583,7 +583,7 @@ function! s:PlugPythonMode()
 endfunction
 
 function! s:PlugWildFire()
-    Plug 'gcmt/wildfire'
+    Plug 'gcmt/wildfire.vim'
 endfunction
 
 function! s:PlugSurround()
