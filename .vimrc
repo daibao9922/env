@@ -103,7 +103,7 @@ function! RgAsyncFinishHandler(channel)
     execute 'view ' . s:search_result_file
     setlocal autoread
     execute "normal /\\%$/;?^>>?2\<cr>"
-    
+
     let s:search_result_list = getline(1, '$')
     let cur_pos = getcurpos()
     let s:search_result_cur_line = cur_pos[1]
@@ -217,6 +217,10 @@ endfunction
 "######## search end ##########
 
 function! s:InitBase()
+
+    set clipboard=unnamed
+    set mouse=a
+
     syntax on
     syntax enable
 
@@ -229,11 +233,10 @@ function! s:InitBase()
     set wrap
     set noswapfile
     set nowrapscan
-    set mouse=a
-    
+
     " 如果修改了当前文件没有保存，切换文件的时候不提示保存
     set hidden
-    
+
     " 如果最大化split窗格的话，其他窗口尽量缩到最小
     set wmh=0
 endfunction
@@ -248,8 +251,14 @@ endfunction
 
 function! s:InitProgramming()
     set expandtab
+
+    "自动缩进，既每行的缩进值与上一行相等
     set autoindent
+
+    "缩进的空格数
     set shiftwidth=4
+
+    "制表符在屏幕上显示的宽度*
     set tabstop=4
 endfunction
 
@@ -274,13 +283,13 @@ endfunction
 
 function! s:PlugCocNvim()
     Plug 'neoclide/coc.nvim', {'branch': 'release'}
-    
+
     "------------------- mine ---------------------
     highlight CocErrorFloat ctermbg=39 ctermfg=0
     highlight CocWarningFloat ctermbg=39 ctermfg=0
     highlight Pmenu ctermbg=39 ctermfg=0
     highlight PmenuSel ctermbg=80 ctermfg=0
-    
+
     "set statusline+=[%{coc#status()}%{get(b:,'coc_current_function', '')}]
     "------------------- mine ---------------------
 
@@ -313,11 +322,16 @@ function! s:PlugCocNvim()
     " Use tab for trigger completion with characters ahead and navigate.
     " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
     " other plugin before putting this into your config.
-    inoremap <silent><expr> <TAB>
+    "inoremap <silent><expr> <TAB>
+    "      \ pumvisible() ? "\<C-n>" :
+    "      \ <SID>check_back_space() ? "\<TAB>" :
+    "      \ coc#refresh()
+    "inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+    inoremap <silent><expr> <C-J>
           \ pumvisible() ? "\<C-n>" :
           \ <SID>check_back_space() ? "\<TAB>" :
           \ coc#refresh()
-    inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+    inoremap <expr><C-K> pumvisible() ? "\<C-p>" : "\<C-h>"
 
     function! s:check_back_space() abort
       let col = col('.') - 1
@@ -342,8 +356,10 @@ function! s:PlugCocNvim()
 
     " Use `[g` and `]g` to navigate diagnostics
     " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
-    nmap <silent> [g <Plug>(coc-diagnostic-prev)
-    nmap <silent> ]g <Plug>(coc-diagnostic-next)
+    "nmap <silent> [g <Plug>(coc-diagnostic-prev)
+    "nmap <silent> ]g <Plug>(coc-diagnostic-next)
+    nmap <silent> g[ <Plug>(coc-diagnostic-prev)
+    nmap <silent> g] <Plug>(coc-diagnostic-next)
 
     " GoTo code navigation.
     nmap <silent> gd <Plug>(coc-definition)
@@ -366,11 +382,11 @@ function! s:PlugCocNvim()
     " autocmd CursorHold * silent call CocActionAsync('highlight')
 
     " Symbol renaming.
-    nmap <leader>rn <Plug>(coc-rename)
+    "nmap <leader>rn <Plug>(coc-rename)
 
     " Formatting selected code.
-    xmap <leader>f  <Plug>(coc-format-selected)
-    nmap <leader>f  <Plug>(coc-format-selected)
+    "xmap <leader>f  <Plug>(coc-format-selected)
+    "nmap <leader>f  <Plug>(coc-format-selected)
 
     augroup mygroup
       autocmd!
@@ -382,38 +398,38 @@ function! s:PlugCocNvim()
 
     " Applying codeAction to the selected region.
     " Example: `<leader>aap` for current paragraph
-    xmap <leader>a  <Plug>(coc-codeaction-selected)
-    nmap <leader>a  <Plug>(coc-codeaction-selected)
-
-    " Remap keys for applying codeAction to the current buffer.
-    nmap <leader>ac  <Plug>(coc-codeaction)
-    " Apply AutoFix to problem on the current line.
-    nmap <leader>qf  <Plug>(coc-fix-current)
-
-    " Map function and class text objects
-    " NOTE: Requires 'textDocument.documentSymbol' support from the language server.
-    xmap if <Plug>(coc-funcobj-i)
-    omap if <Plug>(coc-funcobj-i)
-    xmap af <Plug>(coc-funcobj-a)
-    omap af <Plug>(coc-funcobj-a)
-    xmap ic <Plug>(coc-classobj-i)
-    omap ic <Plug>(coc-classobj-i)
-    xmap ac <Plug>(coc-classobj-a)
-    omap ac <Plug>(coc-classobj-a)
-
-    " Use CTRL-S for selections ranges.
-    " Requires 'textDocument/selectionRange' support of LS, ex: coc-tsserver
-    nmap <silent> <C-s> <Plug>(coc-range-select)
-    xmap <silent> <C-s> <Plug>(coc-range-select)
-
-    " Add `:Format` command to format current buffer.
-    command! -nargs=0 Format :call CocAction('format')
-
-    " Add `:Fold` command to fold current buffer.
-    command! -nargs=? Fold :call     CocAction('fold', <f-args>)
-
-    " Add `:OR` command for organize imports of the current buffer.
-    command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
+    "xmap <leader>a  <Plug>(coc-codeaction-selected)
+    "nmap <leader>a  <Plug>(coc-codeaction-selected)
+    "
+    "" Remap keys for applying codeAction to the current buffer.
+    "nmap <leader>ac  <Plug>(coc-codeaction)
+    "" Apply AutoFix to problem on the current line.
+    "nmap <leader>qf  <Plug>(coc-fix-current)
+    "
+    "" Map function and class text objects
+    "" NOTE: Requires 'textDocument.documentSymbol' support from the language server.
+    "xmap if <Plug>(coc-funcobj-i)
+    "omap if <Plug>(coc-funcobj-i)
+    "xmap af <Plug>(coc-funcobj-a)
+    "omap af <Plug>(coc-funcobj-a)
+    "xmap ic <Plug>(coc-classobj-i)
+    "omap ic <Plug>(coc-classobj-i)
+    "xmap ac <Plug>(coc-classobj-a)
+    "omap ac <Plug>(coc-classobj-a)
+    "
+    "" Use CTRL-S for selections ranges.
+    "" Requires 'textDocument/selectionRange' support of LS, ex: coc-tsserver
+    "nmap <silent> <C-s> <Plug>(coc-range-select)
+    "xmap <silent> <C-s> <Plug>(coc-range-select)
+    "
+    "" Add `:Format` command to format current buffer.
+    "command! -nargs=0 Format :call CocAction('format')
+    "
+    "" Add `:Fold` command to fold current buffer.
+    "command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+    "
+    "" Add `:OR` command for organize imports of the current buffer.
+    "command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
 
     " Add (Neo)Vim's native statusline support.
     " NOTE: Please see `:h coc-status` for integrations with external plugins that
@@ -422,21 +438,21 @@ function! s:PlugCocNvim()
 
     " Mappings for CoCList
     " Show all diagnostics.
-    nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
-    " Manage extensions.
-    nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
-    " Show commands.
-    nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
-    " Find symbol of current document.
-    nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
-    " Search workspace symbols.
-    nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
-    " Do default action for next item.
-    nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
-    " Do default action for previous item.
-    nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
-    " Resume latest coc list.
-    nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+    "nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
+    "" Manage extensions.
+    "nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
+    "" Show commands.
+    "nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
+    "" Find symbol of current document.
+    "nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
+    "" Search workspace symbols.
+    "nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
+    "" Do default action for next item.
+    "nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
+    "" Do default action for previous item.
+    "nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
+    "" Resume latest coc list.
+    "nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
 
 endfunction
 
@@ -476,21 +492,6 @@ function! s:PlugGutentags()
     endif
 endfunction
 
-function! s:PlugYouCompleteMe()
-    Plug 'ycm-core/YouCompleteMe', {'for':['c','cpp','python','go','vim','sh']}
-    let g:ycm_global_ycm_extra_conf = '~/.vim/.ycm_extra_conf.py'
-    let g:ycm_semantic_triggers =  {
-        \ 'c,cpp,python,go,vim,sh': ['re!\w{2}'],
-        \ }
-    let g:ycm_error_symbol = '>>'
-    let g:ycm_warning_symbol = '>*'
-    let g:ycm_always_populate_location_list = 1
-
-    " close preview window
-    set completeopt=menu,menuone
-    let g:ycm_add_preview_to_completeopt = 0
-endfunction
-
 function! s:PlugInterestingWords()
     Plug 'lfv89/vim-interestingwords'
     let g:interestingWordsTermColors = []
@@ -510,7 +511,7 @@ endfunction
 function! s:PlugColorschemeMolokai()
     set rtp+=~/.vim/plugged/molokai
     Plug 'tomasr/molokai'
-    
+
     set t_Co=256
     set background=dark
     set cursorline
@@ -521,13 +522,13 @@ endfunction
 
 function! s:PlugDirDiff()
     Plug 'will133/vim-dirdiff'
-    
+
     let g:DirDiffExcludes = ".*.swp"
 endfunction
 
 function! s:PlugTagbar()
     Plug 'majutsushi/tagbar'
-    
+
     let g:tagbar_type_c = {
         \ 'kinds' : [
             \ 'd:macros:0:0',
@@ -551,7 +552,7 @@ endfunction
 
 function! s:PlugNerdTree()
     Plug 'scrooloose/nerdtree'
-    
+
     let g:NERDTreeWinPos='right'
     let g:NERDTreeChDirMode=1
     let g:NERDTreeShowHidden=1
@@ -561,45 +562,109 @@ endfunction
 
 function! s:PlugAsyncRun()
     Plug 'skywind3000/asyncrun.vim'
-    
+
     let g:asyncrun_open = 10
 endfunction
 
 function! s:PlugIndentLine()
     Plug 'Yggdroot/indentLine'
-    
+
     let g:indentLine_fileType = ['c', 'cpp', 'python', 'vim']
 endfunction
 
 function! s:PlugPythonMode()
     Plug 'klen/python-mode'
-    
+
     let g:pymode_option = 1
     let g:pymode = 1
     let g:pymode_syntax_all = 0
-    
+
     let g:pymode_python = 'python'
+endfunction
+
+function! s:PlugWildFire()
+    Plug 'gcmt/wildfire'
+endfunction
+
+function! s:PlugSurround()
+    Plug 'tpope/vim-surround'
+endfunction
+
+function! s:PlugMultipleCursors()
+    Plug 'mg979/vim-visual-multi'
+
+    let g:VM_maps = {}
+    let g:VM_maps['Find Under']         = '<leader>v'
+    let g:VM_maps['Find Subword Under'] = '<leader>v'
+endfunction
+
+function! s:PlugUltisnips()
+    Plug 'SirVer/ultisnips'
+
+    Plug 'honza/vim-snippets'
+
+    let g:UltiSnipsExpandTrigger="<TAB>"
+    let g:UltiSnipsJumpForwardTrigger="<TAB>"
+    let g:UltiSnipsJumpBackwardTrigger="<TAB>"
 endfunction
 
 function! s:InitPlug()
     call plug#begin('~/.vim/plugged')
 
     call s:PlugColorschemeMolokai()
+
+    "用快捷键打开关闭quickfix窗口
     call s:PlugListToggle()
-    call s:PlugDirDiff()
-    call s:PlugTagbar()
-    call s:PlugNerdTree()
-    call s:PlugAsyncRun()
-    call s:PlugFzf()
-    call s:PlugInterestingWords()
-    call s:PlugDrawIt()
+
+    "用快捷键打开关闭terminal窗口
     call s:PlugTerminal()
-    
+
+    "侧边栏显示符号
+    call s:PlugTagbar()
+
+    "侧边栏显示文件
+    call s:PlugNerdTree()
+
+    "回车按范围选中文本
+    call s:PlugWildFire()
+
+    "替换边界字符
+    call s:PlugSurround()
+
+    "多光标
+    call s:PlugMultipleCursors()
+
+    "异步执行
+    call s:PlugAsyncRun()
+
+    "模糊匹配
+    call s:PlugFzf()
+
+    "高亮单词
+    call s:PlugInterestingWords()
+
+    "文件夹比较
+    call s:PlugDirDiff()
+
+    "绘图
+    call s:PlugDrawIt()
+
+    "代码片段
+    call s:PlugUltisnips()
+
+    "自动对仓库中的代码构建tag
     call s:PlugGutentags()
+
+    "LSP
     call s:PlugCocNvim()
+
+    "按照4个空格显示对齐线
     call s:PlugIndentLine()
-    "call s:PlugPythonMode()
+
+    "git
     call s:PlugFugitive()
+
+    "call s:PlugPythonMode()
 
     call plug#end()
 endfunction
@@ -803,19 +868,34 @@ function! s:InitMap()
     let g:mapleader = ','
     let g:maplocalleader = '-'
 
-    inoremap jk <esc>
-    cnoremap jk <esc>
+    "inoremap jk <esc>
+    "cnoremap jk <esc>
+
+    vnoremap <F5> "+y
+
+    nnoremap <c-h> <c-w>h
+    nnoremap <c-j> <c-w>j
+    nnoremap <c-k> <c-w>k
+    nnoremap <c-l> <c-w>l
+    tnoremap <c-h> <c-w>h
+    tnoremap <c-j> <c-w>j
+    tnoremap <c-k> <c-w>k
+    tnoremap <c-l> <c-w>l
 
     call s:InitSearchMap()
 
     nnoremap <leader>0 viw"0p
 
+    nnoremap <leader>c :let @+ = @0<cr>
+
     nnoremap <leader>d :call <sid>MapLeader_d()<cr>
 
     nnoremap <leader>ev :e ~/.vimrc<cr>
+    nnoremap <leader>eb :e ~/.bash_profile<cr>
     nnoremap <leader>em :call <sid>MapLeader_em()<cr>
     nnoremap <leader>ga :GutentagsUpdate!<cr>
     nnoremap <leader>gl :GutentagsUpdate<cr>
+    nnoremap <leader>gs :UltiSnipsEdit<cr>
 
     nnoremap <leader>f :call <sid>MapLeader_f()<cr>
 
@@ -826,7 +906,7 @@ function! s:InitMap()
     nnoremap <leader>lh :Helptags<cr>
     nnoremap <leader>lt :call <sid>MapLeader_lt()<cr>
     nnoremap <leader>la :call <sid>MapLeader_la()<cr>
-    
+
     nnoremap <leader>tn :set number!<cr>
     nnoremap <leader>th :set hlsearch!<cr>set hlsearch?<cr>
     nnoremap <leader>tw :set wrap!<cr>set wrap?<cr>
@@ -839,19 +919,8 @@ function! s:InitMap()
 
     nnoremap <leader>yp :call <sid>MapLeader_yp()<cr>
     nnoremap <leader>yn :call <sid>MapLeader_yn()<cr>
-    vnoremap <leader>y "+y
     nnoremap <leader>w :w<cr>
 
-    nnoremap <space> @=((foldclosed(line('.')) < 0) ? 'zc' : 'zo')<cr>
-
-    nnoremap <c-h> <c-w>h
-    nnoremap <c-j> <c-w>j
-    nnoremap <c-k> <c-w>k
-    nnoremap <c-l> <c-w>l
-    tnoremap <c-h> <c-w>h
-    tnoremap <c-j> <c-w>j
-    tnoremap <c-k> <c-w>k
-    tnoremap <c-l> <c-w>l
 endfunction
 
 function! s:Autocmd_SetHelpOption()
