@@ -227,6 +227,7 @@ function! s:InitBase()
     set nocompatible
     set backspace=indent,eol,start
     set number
+    set relativenumber
     set history=100
     set noignorecase
     set nohlsearch
@@ -907,7 +908,7 @@ function! s:InitMap()
     nnoremap <leader>lt :call <sid>MapLeader_lt()<cr>
     nnoremap <leader>la :call <sid>MapLeader_la()<cr>
 
-    nnoremap <leader>tn :set number!<cr>
+    nnoremap <leader>tn :set relativenumber!<cr>
     nnoremap <leader>th :set hlsearch!<cr>set hlsearch?<cr>
     nnoremap <leader>tw :set wrap!<cr>set wrap?<cr>
     nnoremap <leader>tp :set paste!<cr>:set paste?<cr>
@@ -915,7 +916,6 @@ function! s:InitMap()
     nnoremap <leader>td :set NERDTreeToggle<cr>
     nnoremap <leader>tc :set VSTerminalToggle<cr>
     nnoremap <leader>ti :call <sid>SwitchDrawIt()<cr>
-    nnoremap <leader>tn :set number!<cr>
 
     nnoremap <leader>yp :call <sid>MapLeader_yp()<cr>
     nnoremap <leader>yn :call <sid>MapLeader_yn()<cr>
