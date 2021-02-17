@@ -212,6 +212,7 @@ function! s:InitSearchAutocmd()
         autocmd!
         autocmd BufWinEnter * call <sid>Autocmd_BufWinEnter()
         autocmd VimLeave * call <sid>Autocmd_VimLeave()
+    augroup END
 endfunction
 
 "######## search end ##########
@@ -869,8 +870,8 @@ function! s:InitMap()
     let g:mapleader = ','
     let g:maplocalleader = '-'
 
-    "inoremap jk <esc>
-    "cnoremap jk <esc>
+    inoremap jk <esc>
+    cnoremap jk <esc>
 
     vnoremap <F5> "+y
 
