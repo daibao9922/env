@@ -13,13 +13,15 @@ function! s:InitBase()
     set nocompatible
     set backspace=indent,eol,start
     set number
-    set relativenumber
-    set history=100
+    " set relativenumber
+    set history=500
     set noignorecase
-    set nohlsearch
+    set hlsearch
+    set incsearch
     set wrap
     set noswapfile
     set nowrapscan
+    set wildmode=longest,list
 
     " 如果修改了当前文件没有保存，切换文件的时候不提示保存
     set hidden
@@ -658,11 +660,11 @@ function! s:MapLeader_f()
 endfunction
 
 function! s:InitMap()
-    let g:mapleader = ','
-    let g:maplocalleader = '-'
+    let g:mapleader = ' '
+    "let g:maplocalleader = '-'
 
-    inoremap jk <esc>
-    cnoremap jk <esc>
+    " inoremap jk <esc>
+    " cnoremap jk <esc>
 
     vnoremap <F5> "+y
 
@@ -679,14 +681,14 @@ function! s:InitMap()
 
     nnoremap <leader>c :let @+ = @0<cr>
 
-    nnoremap <leader>d :call <sid>MapLeader_d()<cr>
-
     nnoremap <leader>ev :e ~/.vimrc<cr>
     nnoremap <leader>eb :e ~/.bash_profile<cr>
     nnoremap <leader>em :call <sid>MapLeader_em()<cr>
+    nnoremap <leader>es :UltiSnipsEdit<cr>
+
     nnoremap <leader>ga :GutentagsUpdate!<cr>
+    nnoremap <leader>gd :call <sid>MapLeader_gd()<cr>
     nnoremap <leader>gl :GutentagsUpdate<cr>
-    nnoremap <leader>gs :UltiSnipsEdit<cr>
 
     nnoremap <leader>f :call <sid>MapLeader_f()<cr>
 
@@ -818,7 +820,7 @@ function! s:GotoInclude(line)
     return 1
 endfunction
 
-function! s:MapLeader_d()
+function! s:MapLeader_gd()
     call s:GotoTag(expand("<cword>"))
 endfunction
 
