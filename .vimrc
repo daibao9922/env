@@ -152,9 +152,9 @@ function! s:PlugCocNvim()
 
     " GoTo code navigation.
     nmap <silent> gd <Plug>(coc-definition)
-    nmap <silent> gy <Plug>(coc-type-definition)
-    nmap <silent> gi <Plug>(coc-implementation)
-    nmap <silent> gr <Plug>(coc-references)
+    "nmap <silent> gy <Plug>(coc-type-definition)
+    "nmap <silent> gi <Plug>(coc-implementation)
+    "nmap <silent> gr <Plug>(coc-references)
 
     " Use K to show documentation in preview window.
     nnoremap <silent> K :call <SID>show_documentation()<CR>
@@ -301,6 +301,21 @@ function! s:PlugPrettySearch()
     Plug 'daibao9922/vim-pretty-search'
 endfunction
 
+function! s:GrepperFinish()
+    execute "copen"
+endfunction
+
+function! s:PlugGrepper()
+    Plug 'mhinz/vim-grepper'
+    let g:grepper = {}
+    let g:grepper.tools = ['git', 'rg', 'grep']
+    let g:grepper.open = 0
+    let g:grepper.jump = 1
+    let g:grepper.append = 1
+    "let g:grepper.prompt_mapping_tool = '<leader>g'
+    autocmd User Grepper call <sid>GrepperFinish()
+endfunction
+
 function! s:PlugColorschemeMolokai()
     set rtp+=~/.vim/plugged/molokai
     Plug 'tomasr/molokai'
@@ -406,7 +421,9 @@ function! s:InitPlug()
 
     call s:PlugColorschemeMolokai()
 
-    call s:PlugPrettySearch()
+    "call s:PlugPrettySearch()
+
+    call s:PlugGrepper()
 
     "用快捷键打开关闭quickfix窗口
     call s:PlugListToggle()
@@ -494,7 +511,7 @@ function! s:SetStatusLine()
     set statusline+=[%Y]
     set statusline+=%{\"[\".(&fenc==\"\"?&enc:&fenc).((exists(\"+bomb\")\ &&\ &bomb)?\"+\":\"\").\"]\"}
     set statusline+=[%{&ff}]
-    set statusline+=%{VpsResultStatusLine()}
+    "set statusline+=%{VpsResultStatusLine()}
 
     " 设置 laststatus = 0 ，不显式状态行
     " 设置 laststatus = 1 ，仅当窗口多于一个时，显示状态行
@@ -606,6 +623,10 @@ function! s:MapLeader_la()
     call fzf#run(opt)
 endfunction
 
+function! s:MapLeader_SearchRecursive()
+    execute "Grepper -tool rg -cword -noprompt"
+endfunction
+
 function! s:MapLeader_em()
     let ext = expand('%:e')
     let file_name = expand('%:t')
@@ -699,6 +720,8 @@ function! s:InitMap()
     nnoremap <leader>lh :Helptags<cr>
     nnoremap <leader>lt :call <sid>MapLeader_lt()<cr>
     nnoremap <leader>la :call <sid>MapLeader_la()<cr>
+
+    nnoremap <leader>s :call <sid>MapLeader_SearchRecursive()<cr>
 
     nnoremap <leader>tn :set relativenumber!<cr>
     nnoremap <leader>th :set hlsearch!<cr>set hlsearch?<cr>
